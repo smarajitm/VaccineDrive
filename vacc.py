@@ -2,6 +2,7 @@ import requests
 import json
 import logging
 import hashlib
+from argparse import ArgumentParser
 
 
 logger = logging.getLogger()
@@ -12,6 +13,21 @@ logging.basicConfig(
 
 HEADERS = {'Content-type': 'application/json'}
 
+def parse_args():
+    """ Define argument parsing
+
+    Returns: args object
+
+    """
+    parser = ArgumentParser(
+        description='Utility for Booking Covid appointments')
+
+    parser.add_argument('--mobile', help="Mobile Number")
+    parser.add_argument('--date', help="date to book appointment in DD-MM-YYYY format")
+    parser.add_argument('--pin', help="PINCODE for the location")
+
+    args = parser.parse_args()
+    return args
 
 class Runner:
     def __init__(self, mobile, pincode, date):
@@ -28,10 +44,10 @@ class Runner:
         if r.ok:
             respJson = r.json()
             txn = respJson['txnId']
-            logger.debug("Response from COWIN API for Auth is %s", txn)
+            logger.debug("Response from COWIN API for Auth is", txn)
             ''' confirm otp '''
-            print("Please provide OTP received on %s", self.mobile)
-            otp = input()
+            print("Please provide OTP received on", self.mobile)
+            otp = str(input())
             data = {"otp": hashlib.sha256(
                 otp.encode('utf-8')).hexdigest(), "txnId": txn}
             logger.debug("Payload for Confirm OTP is %s", data)
@@ -64,12 +80,10 @@ class Runner:
 
 
 if __name__ == "__main__":
-    print("Please provide phone number")
-    mobile = input()
-    print("Please provide pin code")
-    pin = input()
-    print("Please provide date as DD-MM-YYYY")
-    date = input()
+    args=parse_args()
+    mobile = args.mobile
+    pin = args.pin
+    date = args.date
     r = Runner(mobile, pin, date)
     tok = r.auth()
     if tok == "":

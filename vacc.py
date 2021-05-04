@@ -45,7 +45,7 @@ def find_appointments(pin, date, tok):
 
 
 if __name__ == "__main__":
-    mobile="9886319188"
+    mobile=""
     pin="560048"
     date="04-05-2021"
     tok = auth(mobile)
